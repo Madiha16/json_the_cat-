@@ -1,36 +1,34 @@
 const request = require('request');
 
-//Dynamic Breed Name
-let breed = process.argv.slice(2);
-//console.log(breed); // command line search by breed name
+const fetchBreedDescription = function (breedName, callback) {
+  request(`https://api.thecatapi.com/v1/breeds/search?q=${breedName}`, function (error, response, body) {
 
-request(`https://api.thecatapi.com/v1/breeds/search?q=${breed}`, function(error, response, body) {
-  
-  //Edge Case: Request Failed
-  if (error) {
-    return console.error('Could not find URL:', error); // Print the error if one occurred
-  }
+    if (error) {//error as first param, null as second param in callback
+      return callback(error, null);
+    }
+    const data = JSON.parse(body); //use JSON.parse to convert the JSON string into an actual object
+    if (data[0] === undefined) {
+      return callback("Breed not found", null);
+    } else {
+      return callback(null, data[0].description);
+    };
+  });
+};
 
-  //console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-  
-  //console.log('body:', body); // Prints the body of catapi.com
-  //console.log(typeof body); // type of body is string
-  
-  const data = JSON.parse(body); //use JSON.parse to convert the JSON string into an actual object
-  //console.log(data); // prints the body as an object
-  //console.log(typeof data); // data type is object
+// //from Compass, what we want as an end result
+// fetchBreedDescription('Siberian', (error, description) => {
+//   //
+// });
+// //what I thought we wanted
+// fetchBreedDescription("Siberian", printDescrip);
+// //cb func that prints descrip?
+// const printDescrip = function() {
+//   //
+// };
+// //what we dont want as end result
+// const breedDescription = fetchBreedDescription('Siberian');
 
-  // Edge Case: Breed Not Found
-  if (!data[0]) {
-    console.log("Breed not found");
-  } else {
-    console.log(data[0].description); // first entry in data array, description
-  }
-
-});
-
-
-
+module.exports = { fetchBreedDescription };
 
 
 
